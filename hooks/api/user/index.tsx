@@ -214,7 +214,7 @@ export async function userDelete(id: string) {
     const path = `${ENV.API}/users`;
 
     try {
-        const response = await fetch(path, { 
+        const response = await fetch(path, {
             method: "DELETE",
             body: JSON.stringify( {
                 id: id,

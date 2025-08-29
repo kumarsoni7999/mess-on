@@ -3,7 +3,7 @@ import { STATUS } from "@/lib/statusCodes";
 import { NextRequest, NextResponse } from "next/server";
 
 const validateAttandanceDetails = (userData: any) => {
-    const { user_id, date, shift } = userData;
+    const { user_id, date, shift, organization } = userData;
 
     if (!user_id || typeof user_id !== 'string') {
         throw new Error("User id required.");
@@ -16,10 +16,15 @@ const validateAttandanceDetails = (userData: any) => {
     if (!shift || typeof shift !== 'string') {
         throw new Error("Add morning or night shift value");
     }
+
+    if (!organization || typeof organization !== 'string') {
+        throw new Error("Organization ID is required.");
+    }
 }
 
 export const GET = async (req: NextRequest) => {
     const date: string | null = req.nextUrl.searchParams.get("date")
+    const organization: string | null = req.nextUrl.searchParams.get("organization")
 
     if(!date){
         return NextResponse.json(
@@ -27,8 +32,16 @@ export const GET = async (req: NextRequest) => {
             { status: STATUS.BAD_REQUEST }
         );
     }
+
+    if(!organization){
+        return NextResponse.json(
+            { message: "Organization ID is required" },
+            { status: STATUS.BAD_REQUEST }
+        );
+    }
+
     try {
-        const users = await getUsersAttandance(date);
+        const users = await getUsersAttandance(date, organization);
         return NextResponse.json(
             { data: users },
             { status: STATUS.OK }

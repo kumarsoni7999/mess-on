@@ -44,8 +44,8 @@ export const createOrUpdateUser = async (userData: User): Promise<string> => {
   try {
     // Check if user with the given ID already exists
     let existingUserCheck: any = await query(
-      `SELECT id FROM mess_users WHERE id = ?`,
-      [id]
+      `SELECT id FROM mess_users WHERE id = ? AND organization = ?`,
+      [id, organization]
     );
 
     if (existingUserCheck.length > 0) {
@@ -53,8 +53,8 @@ export const createOrUpdateUser = async (userData: User): Promise<string> => {
       const updateSql = `
         UPDATE mess_users 
         SET full_name = ?, email = ?, mobile = ?, address = ?, permanent_address = ?, 
-            preference = ?, plan = ?, joiningDate = ?, username = ?, organization = ?
-        WHERE id = ?
+            preference = ?, plan = ?, joiningDate = ?, username = ?
+        WHERE id = ? AND organization = ?
       `;
 
       await query(updateSql, [
@@ -75,7 +75,7 @@ export const createOrUpdateUser = async (userData: User): Promise<string> => {
     } else {
       // User doesn't exist, insert new
       const insertSql = `
-        INSERT INTO mess_users (id, full_name, email, mobile, address, permanent_address, preference, plan, joiningDate, username) 
+        INSERT INTO mess_users (id, full_name, email, mobile, address, permanent_address, preference, plan, joiningDate, username, organization) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
@@ -101,7 +101,7 @@ export const createOrUpdateUser = async (userData: User): Promise<string> => {
   }
 };
 
-export const getUsersAttandance = async (date: string) => {
+export const getUsersAttandance = async (date: string, organization: string) => {
   try {
     return await query(`
       SELECT 
@@ -112,23 +112,33 @@ export const getUsersAttandance = async (date: string) => {
       FROM mess_users u
       LEFT JOIN mess_user_attendance a 
         ON u.id = a.user_id AND a.date = ? AND a.active = 1
-      WHERE u.active = 1
+      WHERE u.active = 1 AND u.organization = ?
       GROUP BY u.id
       ORDER BY u.created_at DESC
-      `, [date])
+      `, [date, organization])
   } catch (error) {
     console.error("Error getting users attendance:", error);
     throw error;
   }
 }
 
-export const addUserAttendance = async (attendanceData: { user_id: string, date: string, shift: string }) => {
-  const { user_id, date, shift } = attendanceData;
+export const addUserAttendance = async (attendanceData: { user_id: string, date: string, shift: string, organization: string }) => {
+  const { user_id, date, shift, organization } = attendanceData;
 
   try {
+    // First verify the user belongs to the organization
+    const userCheck = await query(
+      `SELECT id FROM mess_users WHERE id = ? AND organization = ? AND active = 1`,
+      [user_id, organization]
+    );
+
+    if (userCheck.length === 0) {
+      throw new Error("User not found in this organization");
+    }
+
     let existingRecord = await query(
-      `SELECT id, active FROM mess_user_attendance WHERE user_id = ? AND date = ? AND shift = ?`, 
-      [user_id, date, shift]
+      `SELECT id, active FROM mess_user_attendance WHERE user_id = ? AND date = ? AND shift = ? AND organization = ?`, 
+      [user_id, date, shift, organization]
     );
 
     if (existingRecord.length > 0) {
@@ -138,8 +148,8 @@ export const addUserAttendance = async (attendanceData: { user_id: string, date:
     } else {
       const id = uuidv4();
       await query(
-        `INSERT INTO mess_user_attendance (id, user_id, shift, date, active) VALUES (?, ?, ?, ?, ?)`,
-        [id, user_id, shift, date, 1]
+        `INSERT INTO mess_user_attendance (id, user_id, shift, date, active, organization) VALUES (?, ?, ?, ?, ?, ?)`,
+        [id, user_id, shift, date, 1, organization]
       );
       return { id, active: 1 };
     }
@@ -149,10 +159,18 @@ export const addUserAttendance = async (attendanceData: { user_id: string, date:
   }
 };
 
-export const getUserDetails = async (username: string) => {
+export const getUserDetails = async (username: string, organization?: string) => {
   try {
-    let user = await query(`SELECT * FROM mess_users WHERE username = ? OR mobile = ? AND active = 1`, [username, username])
-    return user?.length > 0 ? user[0] : null
+    let sql = `SELECT * FROM mess_users WHERE (username = ? OR mobile = ?) AND active = 1`;
+    let params = [username, username];
+    
+    if (organization) {
+      sql += ` AND organization = ?`;
+      params.push(organization);
+    }
+    
+    let user = await query(sql, params);
+    return user?.length > 0 ? user[0] : null;
   } catch (error) {
     console.error("Error getting user details:", error);
     throw error;
@@ -201,16 +219,21 @@ export const getUserAllAttendance = async (username: string, organization: strin
   }
 };
 
-export const deleteUser = async (id: string) =>{
-  const existUser = await query(
-    `SELECT id FROM mess_users WHERE id = ? AND active = 1`,
-    [id]
-  );
-  if(existUser){
-    await query(`UPDATE mess_users SET active = 0 WHERE id = ?`, [id])
+export const deleteUser = async (id: string, organization: string) =>{
+  try {
+    const existUser = await query(
+      `SELECT id FROM mess_users WHERE id = ? AND organization = ? AND active = 1`,
+      [id, organization]
+    );
+    
+    if(existUser && existUser.length > 0){
+      await query(`UPDATE mess_users SET active = 0 WHERE id = ? AND organization = ?`, [id, organization]);
+      return { message: "User deleted" };
+    }
 
-    return { message: "User deleted" }
+    return { message: "No user found" };
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw error;
   }
-
-  return { message: "No user found" } 
 }

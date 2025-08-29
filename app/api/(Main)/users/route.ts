@@ -81,19 +81,34 @@ export const POST = async (req: NextRequest) => {
 };
 
 export const DELETE = async (req: NextRequest) => {
-    const { id } = await req.json()
+    try {
+        const { id, organization } = await req.json();
 
-    if(!id){
+        if(!id){
+            return NextResponse.json(
+                { message: "User ID is required" },
+                { status: STATUS.BAD_REQUEST }
+            ); 
+        }
+
+        if(!organization){
+            return NextResponse.json(
+                { message: "Organization ID is required" },
+                { status: STATUS.BAD_REQUEST }
+            ); 
+        }
+
+        const result = await deleteUser(id, organization);
+
         return NextResponse.json(
-            { data: null },
-            { status: STATUS.BAD_REQUEST }
-        ); 
+            { message: result.message },
+            { status: STATUS.OK }
+        );
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return NextResponse.json(
+            { message: "Error deleting user" },
+            { status: STATUS.INTERNAL_SERVER_ERROR }
+        );
     }
-
-    await deleteUser(id)
-
-    return NextResponse.json(
-        { message: "User deleted" },
-        { status: STATUS.CREATED }
-    );
 }
