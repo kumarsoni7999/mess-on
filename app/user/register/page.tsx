@@ -58,7 +58,7 @@ export default function LoginPage() {
             const result = await createUser(formData);
             if (result) {
                 setFormData(defaultUserDetails);
-                alert('Thank you, you are now a member of APNA Mess')
+                alert('Thank you, you are now a member of Mess ON')
                 router.push('/')
             }
             setLoading(false);
@@ -72,9 +72,9 @@ export default function LoginPage() {
                     <div className="flex justify-center">
                         <UtensilsCrossed className="h-12 w-12 text-primary" />
                     </div>
-                    <h1 className="text-2xl font-bold">Apna Mess</h1>
+                    <h1 className="text-2xl font-bold">Mess ON</h1>
                     <p className="text-muted-foreground">
-                        Sign up to create account and join APNA Mess
+                        Sign up to create account and join Mess ON
                     </p>
                 </div>
                 <form className="space-y-4" onSubmit={handleSubmit}>

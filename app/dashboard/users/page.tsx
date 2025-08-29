@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { NotFound } from "@/components/notFound/notFound";
-import getUsers, { createUser, userDelete } from "@/hooks/api/user";
+import getUsers, { createUser, getUser, userDelete } from "@/hooks/api/user";
 import Spinner from "@/components/ui/spinner";  // Make sure you have a spinner component, or use any from a UI library like React Spinner
 import { formatDate } from "@/lib/dateformat";
 import Link from "next/link";
@@ -26,6 +26,7 @@ const Users = () => {
         joiningDate: today,
         username: ""
     }
+    const [user, setUser] = useState<any>(null);
     const [open, setOpen] = useState(false);
     const [imageModal, setImageModal] = useState(false);
     const [selectedImage, setSelectedImage] = useState("");
@@ -42,6 +43,12 @@ const Users = () => {
     };
 
     useEffect(() => {
+        (async () => {
+            const user = await getUser();
+            if(user){
+                setUser(user);
+            }
+        })();
         getAllUsers();
     }, []);
 
@@ -95,7 +102,7 @@ const Users = () => {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'Apna Mess',
+                    title: 'Mess ON',
                     text: textToShare
                 });
                 console.log('Shared successfully');
@@ -110,7 +117,7 @@ const Users = () => {
     }
 
     const handleShareUserDetails = async (userItem: any) => {
-        const textToShare = `Hii, ${userItem?.full_name}. Check your daily meal on https://apna-mess-rahul-sonis-projects-f5a9613d.vercel.app/user/${userItem?.username}. Your login ID is ${userItem?.username}.`;
+        const textToShare = `Hii, ${userItem?.full_name}. Check your daily meal on ${window.location.origin}/user/${userItem?.username}. Your login ID is ${userItem?.username}.`;
         await share(textToShare)
     };
 
@@ -187,12 +194,12 @@ const Users = () => {
                                     <TableCell>{user.address || '-'}</TableCell>
                                     <TableCell>{formatDate(user.joiningDate) || '-'}</TableCell>
                                     <TableCell className="flex gap-3 items-center">
-                                        <button className="text-green-500 hover:text-green-700 border border-green-500 rounded-md px-2 py-1" onClick={() => {
-                                            const textToShare = `Hii, ${user?.full_name}. Join our Apna Mess whatsapp group https://chat.whatsapp.com/J5TdPYwLKjJ5IAHtyJB0y6. You can track your daily meal on https://apna-mess-rahul-sonis-projects-f5a9613d.vercel.app/user/${user?.username}.`;
+                                        {user?.whatsapp_group && <button className="text-green-500 hover:text-green-700 border border-green-500 rounded-md px-2 py-1" onClick={() => {
+                                            const textToShare = `Hii, ${user?.full_name}. Join our Mess ON whatsapp group ${user?.whatsapp_group}. You can track your daily meal on ${window.location.origin}/user/${user?.username}.`;
                                             window.open(`https://wa.me/${user.mobile}?text=${encodeURIComponent(textToShare)}`, '_self');
                                         }}>
                                             Whatsapp
-                                        </button>
+                                        </button>}
                                         {user.mobile && (
                                             <button
                                                 className="text-green-500 hover:text-green-700"

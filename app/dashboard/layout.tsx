@@ -70,7 +70,7 @@ export default function DashboardLayout({
               <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-2">
                   <UtensilsCrossed className="h-6 w-6 text-primary" />
-                  <span className="font-semibold">APNA Mess</span>
+                  <span className="font-semibold">Mess ON</span>
                 </div>
                 <Button
                   variant="ghost"
@@ -106,7 +106,7 @@ export default function DashboardLayout({
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-card px-6 border-r">
           <div className="flex h-16 items-center gap-2">
             <UtensilsCrossed className="h-6 w-6 text-primary" />
-            <span className="font-semibold">APNA Mess</span>
+            <span className="font-semibold">Mess ON</span>
           </div>
           <nav className="flex flex-1 flex-col">
             <ul role="list" className="flex flex-1 flex-col gap-y-7">

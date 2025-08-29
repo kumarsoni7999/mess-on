@@ -6,6 +6,12 @@ const getOrganizationId = async () => {
     return organizationId;
 }
 
+export const getUser = async () => {
+    const user = localStorage.getItem('user');
+    const userData = user ? JSON.parse(user) : null;
+    return userData;
+}
+
 // Function to get all users
 export default async function getUsers() {
     const org_id = await getOrganizationId();
