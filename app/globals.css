@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 160 10% 5%;
+  --foreground: 0 0% 98%;
+  --card: 160 10% 8%;
+  --card-foreground: 0 0% 98%;
+  --popover: 160 10% 8%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 142 70% 45%;
+  --primary-foreground: 144 100% 10%;
+  --secondary: 160 10% 12%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 160 10% 15%;
+  --muted-foreground: 0 0% 63.9%;
+  --accent: 142 70% 45%;
+  --accent-foreground: 144 100% 10%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 160 10% 15%;
+  --input: 160 10% 15%;
+  --ring: 142 70% 45%;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.logo-text {
+  @apply text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-emerald-400;
+}
+
+.spinner {
+  border: 4px solid #424242; /* Light gray background */
+  border-top: 4px solid #00cd59; 
+  border-bottom: 4px solid #00cd59;
+  border-radius: 50%;
+  animation: spin 1s linear infinite; /* Animation for rotation */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
