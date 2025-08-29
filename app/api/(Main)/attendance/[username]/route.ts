@@ -2,9 +2,9 @@ import { getUserAllAttendance, getUserDetails } from "@/hooks/api/user/queries";
 import { STATUS } from "@/lib/statusCodes";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (req: NextRequest, { params }: { params: { username: string } }) => {
+export const GET = async (req: NextRequest, { params }: { params: { username: string, organization: string } }) => {
     try {
-        const { username } = params
+        const { username, organization } = params
 
         if(!username){
             return NextResponse.json(
@@ -12,7 +12,7 @@ export const GET = async (req: NextRequest, { params }: { params: { username: st
                 { status: STATUS.BAD_REQUEST }
             ); 
         }
-        const users = await getUserAllAttendance(username);
+        const users = await getUserAllAttendance(username, organization);
         
         return NextResponse.json(
             { data: users },

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Spinner from '@/components/ui/spinner';
 import { useToast } from '@/hooks/use-toast';
+import { organizationLogin } from '@/hooks/api/organization';
 import { KeyRound, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -16,25 +17,25 @@ export default function LoginPage() {
   useEffect(() => {
     (async () => {
       let admin = await localStorage.getItem('admin')
-      if(!admin){
+      if (!admin) {
         router.push('/login')
       }
     })()
   }, [])
 
-  const [email, setEmail] = useState('');
+  const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [emailValid, setEmailValid] = useState(false);
+  const [mobileValid, setMobileValid] = useState(false);
   const [passwordValid, setPasswordValid] = useState(false);
   const { toast } = useToast();
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const mobileRegex = /^[0-9]{10}$/;
 
   const handleEmailChange = (e: any) => {
     const value = e.target.value;
-    setEmail(value);
-    setEmailValid(emailRegex.test(value));
+    setMobile(value);
+    setMobileValid(mobileRegex.test(value));
   };
 
   const handlePasswordChange = (e: any) => {
@@ -47,23 +48,20 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
 
-    if (!emailValid || !passwordValid) {
+    if (!mobileValid || !passwordValid) {
       toast({
         variant: 'destructive',
         title: 'Invalid Credentials',
-        description: 'Please enter a valid email and password.',
+        description: 'Please enter a valid mobile and password.',
       });
       setLoading(false);
       return;
     }
 
     try {
-      if(email == 'admin@gmail.com' && password == 'Admin@1234'){
-        localStorage.setItem('admin', JSON.stringify({
-          email,
-          name: 'Khomi',
-          lastLogin: new Date()
-        }))
+      const res = await organizationLogin(mobile, password)
+      if (res?.data) {
+        localStorage.setItem('admin', JSON.stringify(res?.data))
         router.push('/dashboard');
         toast({
           title: 'Welcome back!',
@@ -73,7 +71,7 @@ export default function LoginPage() {
         toast({
           variant: 'destructive',
           title: 'Failed to login',
-          description: "Email and password is incorrect",
+          description: res?.message || "Mobile and password is incorrect",
         });
       }
     } catch (error: any) {
@@ -101,18 +99,18 @@ export default function LoginPage() {
         </div>
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="mobile">Mobile</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="example@gmail.com"
-              value={email}
+              id="mobile"
+              type="tel"
+              placeholder="9876543210"
+              value={mobile}
               onChange={handleEmailChange}
               required
             />
-            {email && (
-              <p className={`text-sm ${emailValid ? 'text-green-600' : 'text-red-600'}`}>
-                {emailValid ? 'Valid email' : 'Invalid email format'}
+            {mobile && (
+              <p className={`text-sm ${mobileValid ? 'text-green-600' : 'text-red-600'}`}>
+                {mobileValid ? 'Valid mobile' : 'Invalid mobile format'}
               </p>
             )}
           </div>
@@ -132,11 +130,11 @@ export default function LoginPage() {
               </p>
             )}
           </div>
-          <Button type="submit" className="w-full" disabled={loading || !emailValid || !passwordValid} style={(!emailValid || !passwordValid) ? {
+          <Button type="submit" className="w-full" disabled={loading || !mobileValid || !passwordValid} style={(!mobileValid || !passwordValid) ? {
             backgroundColor: loading ? 'gray' : 'green'
           } : {}}>
             {loading ? (
-              <Spinner size={20}/>
+              <Spinner size={20} />
             ) : (
               'Sign In'
             )}

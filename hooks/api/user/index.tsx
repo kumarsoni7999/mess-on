@@ -1,8 +1,18 @@
 import { ENV } from "@/env";
 
+const getOrganizationId = async () => {
+    const admin = localStorage.getItem('admin');
+    const organizationId = admin ? JSON.parse(admin).id : null;
+    return organizationId;
+}
+
 // Function to get all users
 export default async function getUsers() {
-    const path = `${ENV.API}/users`;
+    const org_id = await getOrganizationId();
+    if(!org_id){
+        return null;
+    }
+    const path = `${ENV.API}/users?organization=${org_id}`;
 
     try {
         const response = await fetch(path, { 
@@ -26,6 +36,10 @@ export default async function getUsers() {
 }
 // Function to create a new user
 export async function createUser(userData: any) {
+    const org_id = await getOrganizationId();
+    if(!org_id){
+        return null;
+    }
     const path = `${ENV.API}/users`;
 
     try {
@@ -34,7 +48,7 @@ export async function createUser(userData: any) {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(userData),
+            body: JSON.stringify({...userData, organization: org_id}),
         });
 
         if (!response.ok) {
@@ -51,7 +65,11 @@ export async function createUser(userData: any) {
 }
 
 export async function getUsersAttandance(date: string, username?: string) {
-    let path = `${ENV.API}/attendance?date=${date}`;
+    const org_id = await getOrganizationId();
+    if(!org_id){
+        return null;
+    }
+    let path = `${ENV.API}/attendance?date=${date}&organization=${org_id}`;
 
     if(username){
         path += `&username=${username}`
@@ -79,7 +97,11 @@ export async function getUsersAttandance(date: string, username?: string) {
 }
 
 export async function getUserAttandances(username?: string) {
-    let path = `${ENV.API}/attendance/${username}`;
+    const org_id = await getOrganizationId();
+    if(!org_id){
+        return null;
+    }
+    let path = `${ENV.API}/attendance/${username}?organization=${org_id}`;
 
     try {
         const response = await fetch(path, { 
@@ -103,6 +125,10 @@ export async function getUserAttandances(username?: string) {
 }
 
 export async function addAttendance(attendanceData: any) {
+    const org_id = await getOrganizationId();
+    if(!org_id){
+        return null;
+    }
     const path = `${ENV.API}/attendance`;
 
     try {
@@ -111,7 +137,7 @@ export async function addAttendance(attendanceData: any) {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(attendanceData),
+            body: JSON.stringify({...attendanceData, organization: org_id}),
         });
 
         if (!response.ok) {
@@ -128,6 +154,10 @@ export async function addAttendance(attendanceData: any) {
 }
 
 export async function userLogin(username: string) {
+    const org_id = await getOrganizationId();
+    if(!org_id){
+        return null;
+    }
     const path = `${ENV.API}/users/${username}`;
 
     try {
@@ -135,7 +165,8 @@ export async function userLogin(username: string) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-            }
+            },
+            body: JSON.stringify({organization: org_id}),
         });
 
         if (!response.ok) {
@@ -176,13 +207,18 @@ export async function getUserDetails(username: string){
 }
 
 export async function userDelete(id: string) {
+    const org_id = await getOrganizationId();
+    if(!org_id){
+        return null;
+    }
     const path = `${ENV.API}/users`;
 
     try {
         const response = await fetch(path, { 
             method: "DELETE",
             body: JSON.stringify( {
-                id: id
+                id: id,
+                organization: org_id
             }),
             headers: {
                 "Content-Type": "application/json",

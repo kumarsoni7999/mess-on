@@ -1,5 +1,6 @@
 'use client'
 
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
@@ -29,7 +30,7 @@ export default function DashboardLayout({
 }) {
   
   const router = useRouter();
-  
+  const { toast } = useToast();
   useEffect(() => {
     const getData = async () => {
       let admin = await localStorage.getItem('admin')
@@ -44,6 +45,11 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const handleSignOut = async () => {
+    localStorage.removeItem('admin')
+    toast({
+      title: 'Signed out successfully',
+      description: 'You have been signed out successfully',
+    })
     router.push('/');
   };
 

@@ -21,9 +21,6 @@ export default function Home() {
             <Link href="/login">Admin Login</Link>
           </Button>
         </div>
-          <Button asChild className="w-full bg-black text-white border">
-            <Link href="/user/login">User login</Link>
-          </Button>
       </Card>
     </main>
   );

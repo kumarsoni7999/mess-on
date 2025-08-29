@@ -11,12 +11,13 @@ interface User {
   preference: string;
   plan: string;
   joiningDate: string;
+  organization: string;
 }
 
-export const getAllUsers = async (): Promise<User[]> => {
+export const getAllUsers = async (org_id: string): Promise<User[]> => {
   try {
-    const sql = "SELECT * FROM mess_users WHERE active = 1 ORDER BY created_at DESC";
-    const result: any = await query(sql);
+    const sql = "SELECT * FROM mess_users WHERE active = 1 AND organization = ? ORDER BY created_at DESC";
+    const result: any = await query(sql, [org_id]);
     return result;
   } catch (error) {
     console.error("Error getting users:", error);
@@ -33,7 +34,8 @@ export const createOrUpdateUser = async (userData: User): Promise<string> => {
     address,
     preference,
     plan,
-    joiningDate
+    joiningDate,
+    organization
   } = userData;
 
   const id = userId || uuidv4(); // Use existing ID or generate a new one
@@ -51,7 +53,7 @@ export const createOrUpdateUser = async (userData: User): Promise<string> => {
       const updateSql = `
         UPDATE mess_users 
         SET full_name = ?, email = ?, mobile = ?, address = ?, permanent_address = ?, 
-            preference = ?, plan = ?, joiningDate = ?, username = ?
+            preference = ?, plan = ?, joiningDate = ?, username = ?, organization = ?
         WHERE id = ?
       `;
 
@@ -65,7 +67,8 @@ export const createOrUpdateUser = async (userData: User): Promise<string> => {
         plan,
         joiningDate,
         username,
-        id
+        id,
+        organization
       ]);
 
       return id; // Return updated user ID
@@ -73,7 +76,7 @@ export const createOrUpdateUser = async (userData: User): Promise<string> => {
       // User doesn't exist, insert new
       const insertSql = `
         INSERT INTO mess_users (id, full_name, email, mobile, address, permanent_address, preference, plan, joiningDate, username) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
       await query(insertSql, [
@@ -86,7 +89,8 @@ export const createOrUpdateUser = async (userData: User): Promise<string> => {
         preference,
         plan,
         joiningDate,
-        username
+        username,
+        organization
       ]);
 
       return id; // Return new user ID
@@ -155,20 +159,20 @@ export const getUserDetails = async (username: string) => {
   }
 }
 
-export const getUserAllAttendance = async (username: string) => {
+export const getUserAllAttendance = async (username: string, organization: string) => {
   try {
     const existUser = await query(
-      `SELECT id FROM mess_users WHERE username = ? AND active = 1`,
-      [username]
+      `SELECT id FROM mess_users WHERE username = ? AND organization = ? AND active = 1`,
+      [username, organization]
     );
 
     if (!existUser || existUser.length === 0) return [];
 
     const attendanceRaw = await query(
       `SELECT date, shift FROM mess_user_attendance 
-       WHERE user_id = ? AND active = 1 
+       WHERE user_id = ? AND organization = ? AND active = 1 
        ORDER BY date DESC`,
-      [existUser[0].id]
+      [existUser[0].id, organization]
     );
 
     const groupedAttendance: Record<string, any> = {};

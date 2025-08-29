@@ -3,7 +3,7 @@ import { STATUS } from "@/lib/statusCodes";
 import { createOrUpdateUser, deleteUser, getAllUsers } from "@/hooks/api/user/queries";
 
 const validateUserData = (userData: any) => {
-    const { full_name, email, mobile, address, preference, plan, joiningDate } = userData;
+    const { full_name, email, mobile, address, preference, plan, joiningDate, organization } = userData;
 
     if (!full_name || typeof full_name !== 'string') {
         throw new Error("Full Name is required and must be a string.");
@@ -24,11 +24,25 @@ const validateUserData = (userData: any) => {
     if (!joiningDate || isNaN(Date.parse(joiningDate))) {
         throw new Error("Joining Date must be a valid date.");
     }
+
+    if(!organization){
+        throw new Error("Organization ID is required.");
+    }
 };
 
 export const GET = async (req: NextRequest) => {
     try {
-        const users = await getAllUsers();
+        const searchParams = req.nextUrl.searchParams;
+        const org_id = searchParams.get("organization");
+
+        if(!org_id){
+            return NextResponse.json(
+                { message: "Organization ID is required" },
+                { status: STATUS.BAD_REQUEST }
+            );
+        }
+
+        const users = await getAllUsers(org_id);
         
         return NextResponse.json(
             { data: users },
