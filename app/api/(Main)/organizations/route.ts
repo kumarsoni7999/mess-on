@@ -23,9 +23,10 @@ export const POST = async (req: NextRequest) => {
             whatsapp_group,
             latitude,
             longitude,
+            password
         } = await req.json();
 
-        if (!name || !address || !mobile) {
+        if (!name || !address || !mobile || !password) {
             return NextResponse.json(
                 { message: "All fields are required" },
                 { status: 400 }
@@ -48,14 +49,15 @@ export const POST = async (req: NextRequest) => {
 
         let id = uuidv4();
 
-        let paramsString = "id, name, address, mobile, `key`";
-        let params = "?, ?, ?, ?, ?";
+        let paramsString = "id, name, address, mobile, `key`, password";
+        let params = "?, ?, ?, ?, ?, ?, ?";
         let values = [
             id,
             name,
             address,
             mobile,
             name.trim().replace(/\s+/g, "_").toLowerCase(),
+            password
         ];
 
         if (alternate_mobile) {
@@ -83,7 +85,7 @@ export const POST = async (req: NextRequest) => {
             params += `, ?`;
             values.push(email);
         }
-
+        
         const insertQueryString = `INSERT INTO mess_organizations (${paramsString}) VALUES (${params})`;
 
         const result: any = await query(insertQueryString, values);

@@ -12,7 +12,7 @@ export default function Home() {
         <div className="flex justify-center">
           <UtensilsCrossed className="h-12 w-12 text-primary" />
         </div>
-        <h1 className="logo-text">APNA Mess</h1>
+        <h1 className="logo-text">Mess ON</h1>
         <p className="text-muted-foreground">
           Modern mess management system for tracking attendance, payments, and expenses
         </p>
