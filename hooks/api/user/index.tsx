@@ -7,7 +7,7 @@ const getOrganizationId = async () => {
 }
 
 export const getUser = async () => {
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem('admin');
     const userData = user ? JSON.parse(user) : null;
     return userData;
 }

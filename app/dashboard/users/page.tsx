@@ -26,7 +26,7 @@ const Users = () => {
         joiningDate: today,
         username: ""
     }
-    const [user, setUser] = useState<any>(null);
+    const [userData, setUserData] = useState<any>(null);
     const [open, setOpen] = useState(false);
     const [imageModal, setImageModal] = useState(false);
     const [selectedImage, setSelectedImage] = useState("");
@@ -45,8 +45,9 @@ const Users = () => {
     useEffect(() => {
         (async () => {
             const user = await getUser();
+            console.log(user);
             if(user){
-                setUser(user);
+                setUserData(user);
             }
         })();
         getAllUsers();
@@ -194,7 +195,7 @@ const Users = () => {
                                     <TableCell>{user.address || '-'}</TableCell>
                                     <TableCell>{formatDate(user.joiningDate) || '-'}</TableCell>
                                     <TableCell className="flex gap-3 items-center">
-                                        {user?.whatsapp_group && <button className="text-green-500 hover:text-green-700 border border-green-500 rounded-md px-2 py-1" onClick={() => {
+                                        {userData?.whatsapp_group && <button className="text-green-500 hover:text-green-700 border border-green-500 rounded-md px-2 py-1" onClick={() => {
                                             const textToShare = `Hii, ${user?.full_name}. Join our Mess ON whatsapp group ${user?.whatsapp_group}. You can track your daily meal on ${window.location.origin}/user/${user?.username}.`;
                                             window.open(`https://wa.me/${user.mobile}?text=${encodeURIComponent(textToShare)}`, '_self');
                                         }}>
