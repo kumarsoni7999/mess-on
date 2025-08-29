@@ -10,6 +10,7 @@ import { organizationLogin } from '@/hooks/api/organization';
 import { KeyRound, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { MySocialProfile } from '@/components/socials/Mysocials';
 
 export default function LoginPage() {
 
@@ -141,6 +142,8 @@ export default function LoginPage() {
           </Button>
         </form>
       </Card>
+
+      <MySocialProfile />
     </main>
   );
 }

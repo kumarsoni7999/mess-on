@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { UtensilsCrossed } from 'lucide-react';
 import Link from 'next/link';
+import { MySocialProfile } from '@/components/socials/Mysocials';
 
 export default function Home() {
 
@@ -22,6 +23,7 @@ export default function Home() {
           </Button>
         </div>
       </Card>
+      <MySocialProfile />
     </main>
   );
 }
