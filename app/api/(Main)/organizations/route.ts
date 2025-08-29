@@ -50,7 +50,7 @@ export const POST = async (req: NextRequest) => {
         let id = uuidv4();
 
         let paramsString = "id, name, address, mobile, `key`, password";
-        let params = "?, ?, ?, ?, ?, ?, ?";
+        let params = "?, ?, ?, ?, ?, ?";
         let values = [
             id,
             name,
