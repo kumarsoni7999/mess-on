@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const GET = async (req: NextRequest, res: NextResponse) => {
     try {
-        let queryString = `SELECT * FROM mess_organizations WHERE active = 1`;
+        let queryString = `SELECT * FROM mess_organizations WHERE active = 1 ORDER BY created_at DESC`;
         const organizations = await query(queryString);
         return NextResponse.json({ data: organizations }, { status: 200 });
     } catch (error) {
